@@ -111,6 +111,7 @@ void *mm_malloc(size_t size) {
             block_t* new_block = (block_t*)((void*)block+size);
 
             set_header(new_block, difference, false);
+            if(block == mm_heap_last) mm_heap_last = new_block;
         }
         // size_t old_block_size = difference > ALIGNMENT? size: get_size(block);
         set_header(block, size, true);
