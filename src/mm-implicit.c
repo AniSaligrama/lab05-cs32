@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "mm.h"
 #include "memlib.h"
@@ -101,10 +102,21 @@ void *mm_malloc(size_t size) {
 
     // If there is a large enough free block, use it
     block_t *block = find_fit(size);
+
+//*(block+size)
     if (block != NULL) {
-        set_header(block, get_size(block), true);
+        size_t difference = get_size(block) - size;
+        if(get_size(block) > (size) /*&& difference > ALIGNMENT*/){
+            
+            block_t* new_block = (block_t*)((void*)block+size);
+
+            set_header(new_block, difference, false);
+        }
+        // size_t old_block_size = difference > ALIGNMENT? size: get_size(block);
+        set_header(block, size, true);
         return block->payload;
     }
+    
 
     // Otherwise, a new block needs to be allocated at the end of the heap
     block = mem_sbrk(size);
@@ -159,9 +171,9 @@ void *mm_realloc(void *old_ptr, size_t size) {
     block_t* old_block = block_from_payload(old_ptr);
     size_t old_size = get_size(old_block);
 
-    for(size_t i = 0; i < old_size; i++){
-        memcpy(new_ptr, old_ptr, (size < old_size? size : old_size));
-    }
+  
+    memcpy(new_ptr, old_ptr, (size < old_size? size : old_size));
+    
      
     return new_ptr;
 
@@ -186,5 +198,19 @@ void *mm_calloc(size_t nmemb, size_t size) {
  * mm_checkheap - So simple, it doesn't need a checker!
  */
 void mm_checkheap(void) {
+
+    // for (
+    //     block_t *curr = mm_heap_first;
+    //     mm_heap_last != NULL && curr <= mm_heap_last;
+    //     curr = (void *) curr + get_size(curr)
+    // ) {
+       
+    //     if (is_allocated(curr)) {
+    //         printf("F ");
+    //     }else{
+    //         printf("E ");
+    //     }
+    // }
+    // printf("END\n");
 
 }
